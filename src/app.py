@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, url_for, flash, redirect, send_from_directory
+from flask import Flask, request, jsonify, render_template, make_response, send_file,  url_for, flash, redirect, send_from_directory
 from flask_pymongo import PyMongo
 import os
 from werkzeug.utils import secure_filename
@@ -25,15 +25,27 @@ def main():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return str(os.path.abspath(filename))
+            #file - это то что показывала тебе
+            #filename - просто имя файла.
+            return file
+            '''file_contents = file.read()
+            response = make_response(file_contents)
+            response.headers["Cache-Control"] = "must-revalidate"
+            response.headers["Pragma"] = "must-revalidate"
+            response.headers["Content-type"] = "application/ics"
+            print(file)
+            return str(response)
+
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file', filename=filename))'''
 
     return render_template('main.html')
 
-'''@app.route('/tmp/<filename>')
+@app.route('/tmp/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],
-                               filename)'''
+    return send_file(app.config['UPLOAD_FOLDER'],
+                               filename)
 
 @app.route('/statistics')
 def statistics():
