@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title> Lovely friend </title>
+  <link rel="stylesheet" href="static/css/style.css" type="text/css">
+</head>
+<body>
+  <div class="card border-secondary mb-3" style="max-width: auto; height: auto; position: absolute;  top: 50%;
+        left: 50%; margin-right: -50%; transform: translate(-50%, -50%);">
+    <div class="card-header" align = "center" style="font-size: 20pt; background:  " >
+      Google calendar statistics
+      <small class="form-text text-muted" style="font-size: 10pt" >Любимый друг</small>
+    </div>
+    <fieldset class="form-group">
+        <small class="form-text text-muted" style="font-size: 10pt; margin-left:1%"> Период врмемни, за который хотите получить статистику</small>
+        <div class="form-check" align = 'center'>
+          <label class="form-check-label" style = 'margin-left: 10%'>
+            <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1" checked="">
+            Год
+          </label>
+          <label class="form-check-label" style = 'margin-left: 30%'>
+            <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2">
+            Месяц
+          </label>
+        </div>
+      </fieldset>
+      <div class="card bg-light mb-3" style="max-width: 90%;margin-left: 5%; border-color: #ced2ff" align ='center'>
+        <div class="card-header" style=' background: #ced2ff; border-color: #ced2ff'>Кого чаще всего приглашаешь на мероприятия</div>
+        <div class="card-body">
+          <p class="card-text">
+            <output name='result'> some users should be here </output>
+          </p>
+        </div>
+      </div>
+      <div class="card bg-light mb-3" style="max-width: 90%; margin-left: 5%;border-color: #feeaf5" align ='center'>
+        <div class="card-header" style="background:#fef2f8; border-color: #feeaf5">Кого чаще всего приглашаешь на мероприятия</div>
+        <div class="card-body">
+          <p class="card-text">
+            <output name='result'> some users should be here </output>
+          </p>
+        </div>
+      </div>
+      <div align = 'center' >
+        <p>
+          <a class='btn btn-info' style = "background: #d3ebf9; border-color: #d3ebf9">Получить статистику</a>
+        </p>
+      </div>
+  <div class='container'>
+    <hr>
+    &copy; Олины права не защищены 2018
+  </div>
+</body>
+</html>

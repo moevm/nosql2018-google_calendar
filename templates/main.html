@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title> Main </title>
+  <link rel="stylesheet" href="static/css/style.css" type="text/css">
+</head>
+
+<body>
+  <div class="card bg-light mb-3" style="max-width: auto; height: auto; position: absolute;  top: 50%;
+        left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">
+    <div class="card-header" align = "center" style="font-size: 20pt" >
+      Google calendar statistics
+      <small class="form-text text-muted" style="font-size: 10pt" >Приветсвуем тебя, простой смертный, зачем-то зашедший на этот сайт!</small>
+    </div>
+    <div class="card-body">
+      <div align="center">
+          <small class="form-text text-muted" style="font-size: 10pt" > Приложение Google calendar statistics позволит Вам получить статистику по вашему календарю.</small>
+      </div>
+      <form action="" method=post enctype=multipart/form-data>
+          <div>
+              <label for="exampleInputFile" style="margin-top: 20px">Выберите файл с календарем</label>
+              <p><input type=file name=file>
+                 <input type=submit value=Загрузить>
+              <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
+          </div>
+          <div style='margin-left:25%; margin-top: 20px'>
+            <p>
+              <a href="/statistics" class='btn btn-danger'>Статистика &raquo;</a>
+            </p>
+            <p>
+              <a href="/synchronization" class='btn btn-info'>Синхронизация с календарями друзей &raquo;</a>
+            </p>
+          </div>
+      </form>
+
+    </div>
+    <div class='container'>
+      <hr>
+      &copy; Олины права не защищены 2018
+    </div>
+  </div>
+</body>
+</html>

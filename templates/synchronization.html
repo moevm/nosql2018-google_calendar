@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title> Synchronization </title>
+  <link rel="stylesheet" href="static/css/style.css" type="text/css">
+</head>
+
+
+<body>
+  <div class="card border-secondary mb-3" style="max-width: auto%; height: auto%; position: absolute;  top: 50%;
+        left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">
+    <div class="card-header" align = "center" style="font-size: 20pt" >
+      Google calendar statistics
+      <small class="form-text text-muted" style="font-size: 10pt" > Synchronization with friend</small>
+    </div>
+    <div class="alert alert-dismissible alert-danger" align = "center" style="margin-top:5%; margin-right: 5%; margin-left:5%">
+      <strong>Data selection's should be there</strong>
+    </div>
+    <form>
+      <div class="alert alert-dismissible alert-info"  style="margin:2%">
+        <label for="exampleInputFile1" style="margin-top: 20px">Выберите файл с календарем</label>
+        <p><input type=file name=file>
+           <input type=submit value=Загрузить>
+           <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем вашего друга для получения статистики.</small>
+      </div>
+    </form>
+    <div class="alert alert-dismissible alert-info" align='center' style="margin:1%">
+      <output name='res'> Result should be here </output>
+    </div>
+    <div class='container'>
+      <hr>
+      &copy; Олины права не защищены 2018
+    </div>
+  </div>
+</body>
+</html>
