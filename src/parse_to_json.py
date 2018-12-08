@@ -30,7 +30,7 @@ def parseJson(json, fileObject):
                 if separator != -1:
                     key = line[:separator]
 
-                if key == "CREATED":
+                if key == "CREATED" or key == "X-GOOGLE-HANGOUT":
                     json["mailto"] = value
                     value = line[separator + 1:]
                     break
