@@ -42,6 +42,7 @@ def main():
             global current_user
             current_user = username
             screen_5(True)
+            screen_4(True)
 
     return render_template('main.html')
 
@@ -75,6 +76,53 @@ def employment():
 @app.route('/synchronization')
 def synchronization():
     return render_template('/synchronization.html')
+
+
+def screen_4(is_year):
+    cursor = mongo.db.users.find({"email": current_user})
+    cur_date = datetime.now()
+    if is_year:
+        cur_date = cur_date - timedelta(days=365)  # если год
+    else:
+        cur_date = cur_date - timedelta(days=30)  # если месяц
+
+    all_visitors = []
+    all_organizers = []  # все организаторы
+    result_organizers = {}  # dict - результат
+    result_visitors = {}  # dict - результат
+
+    for id in cursor:
+        user_id = id.get('_id')
+        # ты организатор считаем приглашенных
+        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user,  "start": {'$gte': cur_date}})
+
+        for vis in cursor1:
+            all_visitors += vis.get('visitors')
+
+        for vis in all_visitors:
+            if vis in result_visitors.keys():
+                result_visitors[vis] += 1
+            else:
+                result_visitors[vis] = 1
+
+        print("Результат количества приглашенных на мероприятия тобой", result_visitors)
+
+        # считаем все мероприятия и ищем кто их организовывал
+        cursor1 = mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}})
+        for org in cursor1:
+            if org.get('visitors'):  # если в таблице есть приглашенные то запоминаем организатора
+                all_organizers.append(org.get('organizer'))
+
+        # ищем список всех организаторов без повторений
+        # записываем в словарь ключ - эмайл, значение - количество организованных мероприятий
+        for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
+            result_organizers[org] = all_organizers.count(org)
+
+        result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
+
+    print("Результаты подсчета количества организованных мероприятий", result_organizers)
+
+    return result_organizers
 
 
 def screen_5(is_year):
