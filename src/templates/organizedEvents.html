@@ -5,8 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title> Orzanized events </title>
-  <link rel="stylesheet" href="static/css/style.css" type="text/css">
-</head>
+  <link rel="stylesheet" href="static/css/bootstrap.min.css" type="text/css"
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css"
+        rel="stylesheet" type="text/css">
+    <link
+        href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.5.min.css"
+        rel="stylesheet" type="text/css">
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.2.min.js"></script>
 <body>
   <div class="card border-secondary mb-3" style="max-width: auto; height: auto; position: absolute;  top: 50%;
         left: 50%; margin-right: -50%; transform: translate(-50%, -50%);">
@@ -14,31 +21,34 @@
       Google calendar statistics
       <small class="form-text text-muted" style="font-size: 10pt" > Организованные меропрития </small>
     </div>
-    <fieldset class="form-group">
-        <small class="form-text text-muted" style="font-size: 10pt; margin-left:2%"> Период врмемни, за который хотите получить статистику</small>
-        <div class="form-check" align = 'center'>
-          <label class="form-check-label" style = 'margin-left: 10%'>
-            <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios1" value="option1" checked="">
-            Год
-          </label>
-          <label class="form-check-label" style = 'margin-left: 30%'>
-            <input type="radio" class="form-check-input" name="optionsRadios" id="optionsRadios2" value="option2">
-            Месяц
-          </label>
-        </div>
-      </fieldset>
+    <form method="post">
+        <fieldset class="form-group">
+            <small class="form-text text-muted" style="font-size: 10pt; margin-left:1%"> Период врмемни, за который хотите получить статистику</small>
+            <div class="form-check" align = 'center'>
+              <label class="form-check-label" style = 'margin-left: 10%'>
+                <input type="radio" class="form-check-input" name="options" id="optionsRadios1" value="option1" checked="">
+                Год
+              </label>
+              <label class="form-check-label" style = 'margin-left: 30%'>
+                <input type="radio" class="form-check-input" name="options" id="optionsRadios2" value="option2">
+                Месяц
+              </label>
+                <label>
+                    <input type="submit" style = "background: #d3ebf9; border-color: #d3ebf9">
+                </label>
+            </div>
+          </fieldset>
+      </form>
       <div align = 'center'>
-        <div class="card bg-light mb-3" style="max-width: 20rem; border-color: #a6d5f5">
+        <div class="card bg-light mb-3" style="max-width: auto; margin: 7px; border-color: #a6d5f5">
           <div class="card-header" style="background: #a6d5f5; border-color: #a6d5f5">Диаграмма</div>
           <div class="card-body">
-            <p class="card-text">Diagram should be here</p>
+            <output name='result'>
+                {{ div|safe }}
+                {{script|safe }}
+            </output>
           </div>
         </div>
-      </div>
-      <div align = 'center' >
-        <p>
-          <a class='btn btn-info' style = "background: #d3ebf9; border-color: #d3ebf9">Получить статистику</a>
-        </p>
       </div>
   <div class='container'>
     <hr>
