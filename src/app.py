@@ -36,14 +36,10 @@ class ChooseUser(FlaskForm):
     submit = SubmitField('Ok')
 
 
-class OrgEv(FlaskForm):
+class Form1(FlaskForm):
     Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
     submit = SubmitField('Получить статистику')
 
-
-class LovFriend(FlaskForm):
-    Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
-    submit = SubmitField('Получить статистику')
 
 
 def allowed_file(filename):
@@ -90,7 +86,7 @@ guests = {"name3": 6, "name4": 6}
 
 @app.route('/lovelyFriend', methods=["GET", "POST"])
 def lovelyFriend():
-    form = LovFriend()
+    form = Form1()
     if form.validate_on_submit():
         ans = form.Data.data
         print(ans)
@@ -105,7 +101,7 @@ def lovelyFriend():
 
 @app.route('/organizedEvents', methods=["GET", "POST"])
 def organizedEvents():
-    form = OrgEv()
+    form = Form1()
     if form.validate_on_submit():
         ans = form.Data.data
         if ans == "year":
