@@ -8,7 +8,8 @@ import json
 import dateutil.parser
 import pandas as pd
 from math import pi
-
+from flask_wtf import FlaskForm
+from wtforms import FileField, SelectField, SubmitField, RadioField
 from bokeh.plotting import figure
 from bokeh.transform import cumsum
 from bokeh.embed import components
@@ -17,11 +18,32 @@ UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['ics', 'json', 'bson'])
 
 app = Flask(__name__)
+app.config.update(dict(
+    SECRET_KEY="powerful secretkey",
+    WTF_CSRF_SECRET_KEY="a csrf secret key"
+))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config.from_json("config.json")
 mongo = PyMongo(app)
 
 current_user = "Choose the user"
+mass = ['ko@gmail.com', 'bo@gmail.com', 'bm@gnail.com']
+
+
+class ChooseUser(FlaskForm):
+    dbFile = FileField('')
+    users = SelectField('Выберите user', choices=[(i, i) for i in mass])
+    submit = SubmitField('Ok')
+
+
+class OrgEv(FlaskForm):
+    Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
+    submit = SubmitField('Получить статистику')
+
+
+class LovFriend(FlaskForm):
+    Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
+    submit = SubmitField('Получить статистику')
 
 
 def allowed_file(filename):
@@ -31,25 +53,23 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+    form = ChooseUser()
+    if form.validate_on_submit():
+        file = form.dbFile.data
+        choice = form.users.data
+        print(choice)
         if file and allowed_file(file.filename):
+            flash('Неверный формат файла, выберите файл *.ics')
             filename = secure_filename(file.filename)
-            # file - это то что показывала тебе
-            # filename - просто имя файла.
             username = createjson(file)
             parse_to_mongo_user(username)
             global current_user
             current_user = username
-#            screen_5(True)
-#            screen_4(True)
-
+            return render_template('main.html', form=form)
+        else:
+            flash('Неверный формат файла, выберите файл *.ics')
+            return render_template('main.html', form=form)
+    return render_template('main.html', form=form)
     return render_template('main.html')
 
 
@@ -64,24 +84,38 @@ def statistics():
     return render_template('statistics.html')
 
 
-@app.route('/lovelyFriend')
+org = {"name1": 3, "name2": 5}
+guests = {"name3": 6, "name4": 6}
+
+
+@app.route('/lovelyFriend', methods=["GET", "POST"])
 def lovelyFriend():
-    return render_template('lovelyFriend.html')
+    form = LovFriend()
+    if form.validate_on_submit():
+        ans = form.Data.data
+        print(ans)
+        if ans == "year":
+            flag = True
+        if ans == "month":
+            flag = False
+
+        return render_template('lovelyFriend.html', form=form, organiser=org, guests=guests)
+    return render_template('lovelyFriend.html', flag=None, form=form, organiser=None)
 
 
 @app.route('/organizedEvents', methods=["GET", "POST"])
 def organizedEvents():
-    if request.method == "POST":
-        options = request.form.get('options')
-        if options=="option1":
-            flag=True
-        else:
-            flag=False
-        print(flag)
+    form = OrgEv()
+    if form.validate_on_submit():
+        ans = form.Data.data
+        if ans == "year":
+            flag = True
+        if ans == "month":
+            flag = False
         plot = diagram(screen_5(flag))
         script, div = components(plot)
-        return render_template('/organizedEvents.html', flag=flag, script=script, div=div)
-    return render_template('/organizedEvents.html', flag=None)
+        return render_template('/organizedEvents.html', form=form, script=script, div=div)
+    return render_template('/organizedEvents.html', flag=None, form=form)
 
 
 @app.route('/employment')
@@ -110,7 +144,7 @@ def screen_4(is_year):
     for id in cursor:
         user_id = id.get('_id')
         # ты организатор считаем приглашенных
-        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user,  "start": {'$gte': cur_date}})
+        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user, "start": {'$gte': cur_date}})
 
         for vis in cursor1:
             all_visitors += vis.get('visitors')
@@ -134,7 +168,8 @@ def screen_4(is_year):
         for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
             result_organizers[org] = all_organizers.count(org)
 
-        result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
+        result_organizers = [(k, result_organizers[k]) for k in
+                             sorted(result_organizers, key=result_organizers.get, reverse=True)]
 
     print("Результаты подсчета количества организованных мероприятий", result_organizers)
 
@@ -178,6 +213,8 @@ def screen_4(is_year):
     for id in cursor:
         user_id = id.get('_id')
         # ты организатор считаем приглашенных
+
+        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user, "start": {'$gte': cur_date}})
         cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user,  "start": {'$gte': cur_date}})
 
         for vis in cursor1:
@@ -202,7 +239,11 @@ def screen_4(is_year):
         for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
             result_organizers[org] = all_organizers.count(org)
 
+
+        result_organizers = [(k, result_organizers[k]) for k in
+                             sorted(result_organizers, key=result_organizers.get, reverse=True)]
         result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
+
 
     print("Результаты подсчета количества организованных мероприятий", result_organizers)
 
@@ -243,6 +284,8 @@ def diagram(a):
         'Гость мероприятий': a[1],
     }
     print(type(x))
+    data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'country'})
+    data['angle'] = data['value'] / data['value'].sum() * 2 * pi
     data = pd.Series(x).reset_index(name='value').rename(columns={'index':'country'})
     data['angle'] = data['value']/data['value'].sum() * 2*pi
     data['color'] = ['#feeaf5', '#ced2ff']
@@ -253,6 +296,11 @@ def diagram(a):
     p.wedge(x=0, y=1, radius=0.4,
             start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
             line_color="white", fill_color='color', legend='country', source=data)
+
+    p.axis.axis_label = None
+    p.axis.visible = False
+    p.grid.grid_line_color = None
+    return p
 
     p.axis.axis_label=None
     p.axis.visible=False
