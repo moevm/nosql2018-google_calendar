@@ -33,7 +33,10 @@ mass = ['ko@gmail.com', 'bo@gmail.com', 'bm@gnail.com']
 class ChooseUser(FlaskForm):
     dbFile = FileField('')
     users = SelectField('Выберите user', choices=[(i, i) for i in mass])
-    submit = SubmitField('Ok')
+    submit1 = SubmitField('Импорт в базу данных')
+    submit3 = SubmitField('Выбрать пользователя')
+    submit2 = SubmitField("Экспорт базы данных", )
+
 
 
 class Form1(FlaskForm):
@@ -51,22 +54,29 @@ def allowed_file(filename):
 def main():
     form = ChooseUser()
     if form.validate_on_submit():
-        file = form.dbFile.data
-        choice = form.users.data
-        print(choice)
-        if file and allowed_file(file.filename):
-            flash('Неверный формат файла, выберите файл *.ics')
-            filename = secure_filename(file.filename)
-            username = createjson(file)
-            parse_to_mongo_user(username)
-            global current_user
-            current_user = username
-            return render_template('main.html', form=form)
-        else:
-            flash('Неверный формат файла, выберите файл *.ics')
-            return render_template('main.html', form=form)
+        if form.submit1.data:
+            file = form.dbFile.data
+            if file and allowed_file(file.filename):
+                flash('Неверный формат файла, выберите файл *.ics')
+                filename = secure_filename(file.filename)
+                username = createjson(file)
+                parse_to_mongo_user(username)
+                global current_user
+                current_user = username
+                return render_template('main.html', form=form)
+            else:
+                flash('Неверный формат файла, выберите файл *.ics')
+                return render_template('main.html', form=form)
+        # ОЛЯ, ЗДЕСЬ ЭКСПОРТ ПО ИДЕЕ
+        if form.submit2.data:
+            file_export = 'filename'
+            return redirect(url_for('uploaded_file',
+                                    filename=file_export))
+        #  А ЗДЕСЬ ВЫБОР ПОЛЬЗОВАТЕЛЯ
+        if form.submit3.data:
+            choice = form.users.data
+            print(choice)
     return render_template('main.html', form=form)
-    return render_template('main.html')
 
 
 @app.route('/tmp/<filename>')

@@ -24,13 +24,20 @@
               <label for="exampleInputFile" style="margin-top: 20px">Выберите файл с календарем</label>
               {{ form.hidden_tag()  }}
               <p>
-                  {{ form.dbFile.label  }} {{ form.dbFile() }}
-                  {{ form.users.label  }} {{ form.users() }}
-                  {{ form.submit }}
+                  {{ form.dbFile.label }} {{ form.dbFile }}
+                  {{ form.submit1 (class_="btn btn-primary btn-sm")}}
+                  {{ form.submit2 (class_="btn btn-secondary btn-sm") }}
+                  <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
               </p>
-
-              <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
+               <p align="center">
+                   <div style="width: 35%; margin-bottom: 2%">
+                    {{ form.users.label }} {{ form.users(class="form-control") }}
+                   </div>
+                  {{ form.submit3 (class_="btn btn-primary btn-sm")}}
+                   <small id="fileHelp" class="form-text text-muted"> Выберите пользователя. статистику которого хотите получить.</small>
+              </p>
           </div>
+          <hr>
           <div style='margin-left:25%; margin-top: 20px'>
             <p>
               <a href="/statistics" class='btn btn-danger'>Статистика &raquo;</a>
