@@ -21,38 +21,34 @@
       Google calendar statistics
       <small class="form-text text-muted" style="font-size: 10pt" > Организованные меропрития </small>
     </div>
-    <form method="post">
-        <fieldset class="form-group">
-            <small class="form-text text-muted" style="font-size: 10pt; margin-left:1%"> Период врмемни, за который хотите получить статистику</small>
-            <div class="form-check" align = 'center'>
-              <label class="form-check-label" style = 'margin-left: 10%'>
-                <input type="radio" class="form-check-input" name="options" id="optionsRadios1" value="option1" checked="">
-                Год
-              </label>
-              <label class="form-check-label" style = 'margin-left: 30%'>
-                <input type="radio" class="form-check-input" name="options" id="optionsRadios2" value="option2">
-                Месяц
-              </label>
-                <label>
-                    <input type="submit" style = "background: #d3ebf9; border-color: #d3ebf9">
-                </label>
-            </div>
-          </fieldset>
+    <form method="post" align = 'center'>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.Data.label  }} {{ form.Data() }}
+            {{ form.submit }}
+        </p>
       </form>
       <div align = 'center'>
         <div class="card bg-light mb-3" style="max-width: auto; margin: 7px; border-color: #a6d5f5">
           <div class="card-header" style="background: #a6d5f5; border-color: #a6d5f5">Диаграмма</div>
           <div class="card-body">
-            <output name='result'>
-                {{ div|safe }}
-                {{script|safe }}
-            </output>
+              {% if flag == None %}
+                <output name='result'>
+                    Не выбран временной промежуток
+                </output>
+              {%  else %}
+                <output name='result'>
+                    {{ div|safe }}
+                    {{script|safe }}
+                </output>
+              {% endif %}
           </div>
         </div>
       </div>
   <div class='container'>
     <hr>
     &copy; Олины права не защищены 2018
+  </div>
   </div>
 </body>
 </html>

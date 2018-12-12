@@ -14,44 +14,44 @@
       Google calendar statistics
       <small class="form-text text-muted" style="font-size: 10pt" >Любимый друг</small>
     </div>
-      <form method="post">
-        <fieldset class="form-group">
-            <small class="form-text text-muted" style="font-size: 10pt; margin-left:1%"> Период врмемни, за который хотите получить статистику</small>
-            <div class="form-check" align = 'center'>
-              <label class="form-check-label" style = 'margin-left: 10%'>
-                <input type="radio" class="form-check-input" name="options" id="optionsRadios1" value="option1" checked="">
-                Год
-              </label>
-              <label class="form-check-label" style = 'margin-left: 30%'>
-                <input type="radio" class="form-check-input" name="options" id="optionsRadios2" value="option2">
-                Месяц
-              </label>
-                <label>
-                    <input type="submit">
-                </label>
-            </div>
-          </fieldset>
-      </form>
-      <div class="card bg-light mb-3" style="max-width: 90%;margin-left: 5%; border-color: #ced2ff" align ='center'>
-        <div class="card-header" style=' background: #ced2ff; border-color: #ced2ff'>Кого чаще всего приглашаешь на мероприятия</div>
-        <div class="card-body">
-            <p class="card-text">
-                <output name='result'> {{ flag }} </output>
-            </p>
-        </div>
-      </div>
-      <div class="card bg-light mb-3" style="max-width: 90%; margin-left: 5%;border-color: #feeaf5" align ='center'>
-        <div class="card-header" style="background:#fef2f8; border-color: #feeaf5">Кого чаще всего приглашаешь на мероприятия</div>
-        <div class="card-body">
-          <p class="card-text">
-            <output name='result'> some users should be here </output>
-          </p>
-        </div>
-      </div>
-      <div align = 'center' >
+      <form method="post" align = 'center'>
+        {{ form.hidden_tag() }}
         <p>
-          <a class='btn btn-info' style = "background: #d3ebf9; border-color: #d3ebf9">Получить статистику</a>
+            {{ form.Data.label  }} {{ form.Data() }}
+            {{ form.submit }}
         </p>
+      </form>
+      <div style="margin-left:20px; margin-right:20px">
+          <table class="table table-striped" align="'center">
+              <tr style="background:#E6E6FA; border-color: #E6E6FA">
+                  <th scope="col" align="'center">Кто чаще всего приглашает на мероприятия</th>
+                  <th scope="col" align="center"> Кого чаще всего приглашаешь на мероприятия</th>
+              </tr>
+              <tr>
+                  <td align='center'>
+                      {% if organiser==None %}
+                        <p> Выберите временной промежуток</p>
+                      {% else %}
+                          {% for key, value in organiser.items() %}
+                              <p>
+                                  {{ key }}: {{ value }}
+                              </p>
+                          {% endfor %}
+                      {% endif %}
+                  </td>
+                  <td align='center'>
+                      {% if organiser==None %}
+                        <p> Выберите временной промежуток</p>
+                      {% else %}
+                          {% for key, value in guests.items() %}
+                              <p>
+                                  {{ key }}: {{ value }}
+                              </p>
+                          {% endfor %}
+                      {% endif %}
+                  </td>
+               </tr>
+          </table>
       </div>
   <div class='container'>
     <hr>

@@ -22,8 +22,13 @@
       <form action="" method=post enctype=multipart/form-data>
           <div>
               <label for="exampleInputFile" style="margin-top: 20px">Выберите файл с календарем</label>
-              <p><input type=file name=file>
-                 <input type=submit value=Загрузить>
+              {{ form.hidden_tag()  }}
+              <p>
+                  {{ form.dbFile.label  }} {{ form.dbFile() }}
+                  {{ form.users.label  }} {{ form.users() }}
+                  {{ form.submit }}
+              </p>
+
               <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
           </div>
           <div style='margin-left:25%; margin-top: 20px'>
