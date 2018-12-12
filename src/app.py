@@ -168,8 +168,7 @@ def screen_4(is_year):
         for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
             result_organizers[org] = all_organizers.count(org)
 
-        result_organizers = [(k, result_organizers[k]) for k in
-                             sorted(result_organizers, key=result_organizers.get, reverse=True)]
+        result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
 
     print("Результаты подсчета количества организованных мероприятий", result_organizers)
 
