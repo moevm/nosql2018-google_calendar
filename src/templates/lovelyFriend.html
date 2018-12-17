@@ -17,13 +17,13 @@
       <form method="post" align = 'center'>
         {{ form.hidden_tag() }}
         <p>
-            {{ form.Data.label  }} {{ form.Data() }}
-            {{ form.submit }}
+            {{ form.Data.label  }} {{ form.Data(class="radio") }}
+            {{ form.submit(class_="btn btn-info") }}
         </p>
       </form>
       <div style="margin-left:20px; margin-right:20px">
-          <table class="table table-striped" align="'center">
-              <tr style="background:#E6E6FA; border-color: #E6E6FA">
+          <table class="table table-striped" align="center">
+              <tr style="background: #17a2b8; border-color: #E6E6FA">
                   <th scope="col" align="'center">Кто чаще всего приглашает на мероприятия</th>
                   <th scope="col" align="center"> Кого чаще всего приглашаешь на мероприятия</th>
               </tr>

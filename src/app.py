@@ -10,9 +10,11 @@ import pandas as pd
 from math import pi
 from flask_wtf import FlaskForm
 from wtforms import FileField, SelectField, SubmitField, RadioField
+from wtforms.fields.html5 import DateField
 from bokeh.plotting import figure
 from bokeh.transform import cumsum
 from bokeh.embed import components
+
 
 UPLOAD_FOLDER = '/tmp'
 ALLOWED_EXTENSIONS = set(['ics', 'json', 'bson'])
@@ -38,11 +40,9 @@ class ChooseUser(FlaskForm):
     submit2 = SubmitField("Экспорт базы данных", )
 
 
-
 class Form1(FlaskForm):
     Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
     submit = SubmitField('Получить статистику')
-
 
 
 def allowed_file(filename):
@@ -104,7 +104,6 @@ def lovelyFriend():
             flag = True
         if ans == "month":
             flag = False
-
         return render_template('lovelyFriend.html', form=form, organiser=org, guests=guests)
     return render_template('lovelyFriend.html', flag=None, form=form, organiser=None)
 
@@ -123,15 +122,66 @@ def organizedEvents():
         return render_template('/organizedEvents.html', form=form, script=script, div=div)
     return render_template('/organizedEvents.html', flag=None, form=form)
 
+class ChooseDate(FlaskForm):
+    submit3 = SubmitField('Получить результат')
+    start_time = DateField('C  ', default=datetime.today())
+    end_time = DateField('По  ', default=datetime.today())
 
-@app.route('/employment')
+@app.route('/employment', methods=["GET", "POST"])
 def employment():
-    return render_template('/employment.html')
+    form1 = ChooseDate()
+    if form1.validate_on_submit():
+        if form1.submit3.data:
+            start = form1.start_time.data  # даты
+            finish = form1.end_time.data
+            if finish < start:
+                form1.end_time.errors.append('Указан не верный промежуток времени')
+                return render_template('/employment.html', form=form1)
+            print(type(finish))
+            return render_template('/employment.html', form=form1)
+    return render_template('/employment.html', form=form1)
 
+class ChooseFriend(FlaskForm):
+    dbFile = FileField('')
+    users = SelectField('Выберите user', choices=[(i, i) for i in mass])
+    submit1 = SubmitField('Импорт календаря друга в бд')
+    submit2 = SubmitField('Выбрать друга')
+    submit3 = SubmitField('Получить результат')
+    start_time = DateField('C  ', default=datetime.today())
+    end_time = DateField('По  ', default=datetime.today())
 
-@app.route('/synchronization')
+friend=[] # массив для списка друзей
+
+@app.route('/synchronization', methods=['GET', 'POST'])
 def synchronization():
-    return render_template('/synchronization.html')
+    form = ChooseFriend()
+    if form.validate_on_submit():
+        if form.submit1.data:
+            file = form.dbFile.data
+            if file and allowed_file(file.filename):
+                flash('Неверный формат файла, выберите файл *.ics')
+                filename = secure_filename(file.filename)
+                username = createjson(file)
+                parse_to_mongo_user(username)
+                global current_user
+                current_user = username
+                return render_template('synchronization.html', form=form, friend=friend)
+            else:
+                flash('Неверный формат файла, выберите файл *.ics')
+                return render_template('synchronization.html', form=form, friend=friend)
+        if form.submit2.data:
+            friend.append(form.users.data)
+            choice = form.users.data
+            print(choice)
+        if form.submit3.data:
+            start = form.start_time.data #даты
+            finish = form.end_time.data
+            if finish<start:
+                form.end_time.errors.append('Указан не верный промежуток времени')
+                return render_template('synchronization.html', form=form, friend=friend)
+            print(start, finish)
+            return render_template('synchronization.html', form=form, friend=friend)
+    return render_template('/synchronization.html', form=form, friend=friend)
 
 
 def screen_4(is_year):

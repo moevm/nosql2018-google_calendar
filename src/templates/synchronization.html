@@ -16,19 +16,62 @@
       Google calendar statistics
       <small class="form-text text-muted" style="font-size: 10pt" > Synchronization with friend</small>
     </div>
-    <div class="alert alert-dismissible alert-danger" align = "center" style="margin-top:5%; margin-right: 5%; margin-left:5%">
-      <strong>Data selection's should be there</strong>
-    </div>
-    <form>
-      <div class="alert alert-dismissible alert-info"  style="margin:2%">
-        <label for="exampleInputFile1" style="margin-top: 20px">Выберите файл с календарем</label>
-        <p><input type=file name=file>
-           <input type=submit value=Загрузить>
-           <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем вашего друга для получения статистики.</small>
-      </div>
+
+    <form action="" method=post enctype=multipart/form-data>
+            {{ form.hidden_tag()  }}
+        <div class="alert alert-dismissible alert-secondary" align = "center" style="margin-top:5%; margin-right: 5%; margin-left:5%">
+          <p>
+                {{ form.start_time.label (class='datapicker') }}{{ form.start_time }}
+                {{ form.end_time.label }}{{ form.end_time }}
+                {% if form.end_time.errors %}
+                  {% for error in form.end_time.errors %}
+                      <p class='alert alert-dismissible alert-danger'>{{  error }}</p>
+                  {% endfor %}
+                {%  endif %}
+          </p>
+        </div>
+
+          <div align="center" style="margin: 10px">
+              <label for="exampleInputFile" style="margin-top: 20px">Выберите файл с календарем друга </label>
+              <p>
+                  {{ form.dbFile.label }} {{ form.dbFile }}
+                  {{ form.submit1 (class_="btn btn-primary btn-sm") }}
+                  <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
+              </p>
+               <p style="margin: 15px">
+                   <div style="width: 35%; margin-bottom: 2%">
+                    {{ form.users.label }} {{ form.users(class="form-control") }}
+                   </div>
+                  <small id="fileHelp" class="form-text text-muted"> Выберите друга.</small>
+                  {{ form.submit2 (class_="btn btn-primary btn-sm")}}
+              </p>
+              <p align="center">
+                  {{ form.submit3 (class_="btn btn-info btn-sm")}}
+              </p>
+          </div>
     </form>
-    <div class="alert alert-dismissible alert-info" align='center' style="margin:1%">
-      <output name='res'> Result should be here </output>
+    <div style="margin: 20px">
+        <table class="table table-striped" align="center">
+            <tr>
+                <th scope="col" align="center"> Друзья </th>
+                <th scope="col" align="center"> Общее свободное время</th>
+
+            </tr>
+            <tr>
+                <th>
+                    {% for i in friend %}
+                    <div class="alert alert-dismissible alert-primary" align='center' style="margin:1%">
+                      <output> {{ i }}  </output>
+                    </div>
+                    {% endfor %}
+                </th>
+                <th>
+                    <div class="alert alert-dismissible alert-primary" align='center' style="margin:1%">
+                      <output> Result should be here </output>
+                    </div>
+                </th>
+            </tr>
+        </table>
     </div>
     <div class='container'>
       <hr>
