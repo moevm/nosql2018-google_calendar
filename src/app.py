@@ -141,7 +141,7 @@ def employment():
             if finish < start:
                 form1.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('/employment.html', form=form1)
-            print(screen_6(start, finish)) # выводит список строк "дата и время1 - дата и время 2"
+            print(screen_6(start, finish))  # выводит список строк "дата и время1 - дата и время 2"
             return render_template('/employment.html', form=form1)
     return render_template('/employment.html', form=form1)
 
@@ -156,7 +156,7 @@ class ChooseFriend(FlaskForm):
     end_time = DateField('По  ', default=datetime.today())
 
 
-friend = []  # массив для списка друзей
+friend=[] # массив для списка друзей
 
 @app.route('/synchronization', methods=['GET', 'POST'])
 def synchronization():
@@ -186,11 +186,71 @@ def synchronization():
                 form.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('synchronization.html', form=form, friend=friend)
             print(start, finish)
+            print(meetings(friend, start, finish))  # вывести места пересечения список строк
+            print(free_time(friend, start, finish))  # вывести свободное время чтобы всем встретиться список строк
             return render_template('synchronization.html', form=form, friend=friend)
     return render_template('/synchronization.html', form=form, friend=friend)
 
 
+# def screen_3
+def meetings(userlist, date_start, date_end):
+    date_end = datetime.combine(date_end, datetime.min.time())
+    date_start = datetime.combine(date_start, datetime.min.time())
+    user_event_list = []
+    cursor = mongo.db.users.find({"email": current_user})
+    for id in cursor:
+        user_id = id.get('_id')
+        # находим все даты попавшие в промежуток
+        event_line = mongo.db.events.find(
+            {'$and': [{"user_id": user_id}, {"start": {'$lt': date_end}}, {"end": {'$gte': date_start}}]})
+        for event in event_line:
+            user_event_list.append({"location": event.get("location"), "date_start": event.get("start"),
+                                    "date_end": event.get("end"), "flag": 0})
 
+    # проверяем совпадения с другими юзерами
+    for user in userlist:
+        if user != current_user:
+            cursor = mongo.db.users.find({"email": user})
+            for id in cursor:
+                user_id = id.get('_id')
+                # находим все даты попавшие в промежуток
+                for event in user_event_list:
+                    event_line = mongo.db.events.find(
+                        {'$and': [{"user_id": user_id}, {"start": {'$gte': event["date_start"]}},
+                              {"end": {'$lte': event["date_end"]}}, {"location": event["location"]}]})
+                    for id in event_line:
+                        event["flag"] = 1
+
+    result = []
+    for event in user_event_list:
+        if event["flag"] == 1:
+            start = date_to_string(event["date_start"])
+            finish = date_to_string(event["date_end"])
+            result.append("Место: " + event["location"].replace("\\", "") + "\nВремя: " + start + " - " + finish)
+
+    return result
+
+
+def free_time(userlist, date_start, date_end):
+    date_end = datetime.combine(date_end, datetime.min.time())
+    date_start = datetime.combine(date_start, datetime.min.time())
+
+    event_list = []
+    # складываем мероприятия всех юзеров
+
+    for user in userlist:
+        cursor = mongo.db.users.find({"email": user})
+        for id in cursor:
+            user_id = id.get('_id')
+            # находим все даты попавшие в промежуток
+            event_line = mongo.db.events.find(
+                {'$and': [{"user_id": user_id}, {"start": {'$lt': date_end}}, {"end": {'$gte': date_start}}]})
+            for event in event_line:
+                # добавляем пары начало конец меротприятия, для сортировки
+                event_list.append((event.get('start'), event.get('end')))  # возвращаем все их свободное время
+    # возвращаем список свободного времени у них
+
+    return get_free_time(date_start, date_end, event_list)  # находим свободное время
 
 
 def screen_4(is_year):
@@ -294,7 +354,6 @@ def screen_6(date_start, date_end):
 def get_free_time(date_start, date_end, event_list):
     # сортируем
     event_list.sort(key=get_first)
-
     # оставляем только непересекающиеся даты
     tmp_list = []  # хранит непересекающиеся даты
     i = 0
