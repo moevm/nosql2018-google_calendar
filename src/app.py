@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import json
 import dateutil.parser
 import pandas as pd
+import os
 from math import pi
 from flask_wtf import FlaskForm
 from wtforms import FileField, SelectField, SubmitField, RadioField
@@ -29,7 +30,7 @@ app.config.from_json("config.json")
 mongo = PyMongo(app)
 
 current_user = "Choose the user"
-mass = ['ko@gmail.com', 'bo@gmail.com', 'bm@gnail.com']
+mass = ["kochnevaolga74@gmail.com", "mariyabuuu@gmail.com", "olchick0923@gmail.com"]
 
 
 class ChooseUser(FlaskForm):
@@ -37,12 +38,13 @@ class ChooseUser(FlaskForm):
     users = SelectField('Выберите user', choices=[(i, i) for i in mass])
     submit1 = SubmitField('Импорт в базу данных')
     submit3 = SubmitField('Выбрать пользователя')
-    submit2 = SubmitField("Экспорт базы данных", )
+    submit2 = SubmitField('Экспорт базы данных')
 
 
 class Form1(FlaskForm):
     Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
     submit = SubmitField('Получить статистику')
+
 
 
 def allowed_file(filename):
@@ -61,21 +63,23 @@ def main():
                 filename = secure_filename(file.filename)
                 username = createjson(file)
                 parse_to_mongo_user(username)
-                global current_user
-                current_user = username
                 return render_template('main.html', form=form)
             else:
                 flash('Неверный формат файла, выберите файл *.ics')
                 return render_template('main.html', form=form)
         # ОЛЯ, ЗДЕСЬ ЭКСПОРТ ПО ИДЕЕ
         if form.submit2.data:
-            file_export = 'filename'
-            return redirect(url_for('uploaded_file',
-                                    filename=file_export))
+            os.system('mongoexport --db Calendars --collection users --out Users.json')
+            os.system('mongoexport --db Calendars --collection events --out Events.json')
+            file_export = 'Users.json'
+            return render_template('main.html', form=form)
+#            return redirect(url_for('uploaded_file',
+#                                    filename=file_export))
         #  А ЗДЕСЬ ВЫБОР ПОЛЬЗОВАТЕЛЯ
         if form.submit3.data:
             choice = form.users.data
-            print(choice)
+            global current_user
+            current_user = choice
     return render_template('main.html', form=form)
 
 
@@ -90,10 +94,6 @@ def statistics():
     return render_template('statistics.html')
 
 
-org = {"name1": 3, "name2": 5}
-guests = {"name3": 6, "name4": 6}
-
-
 @app.route('/lovelyFriend', methods=["GET", "POST"])
 def lovelyFriend():
     form = Form1()
@@ -104,6 +104,8 @@ def lovelyFriend():
             flag = True
         if ans == "month":
             flag = False
+        guests = screen_4(flag)[1]
+        org = screen_4(flag)[0]
         return render_template('lovelyFriend.html', form=form, organiser=org, guests=guests)
     return render_template('lovelyFriend.html', flag=None, form=form, organiser=None)
 
@@ -122,10 +124,12 @@ def organizedEvents():
         return render_template('/organizedEvents.html', form=form, script=script, div=div)
     return render_template('/organizedEvents.html', flag=None, form=form)
 
+
 class ChooseDate(FlaskForm):
     submit3 = SubmitField('Получить результат')
     start_time = DateField('C  ', default=datetime.today())
     end_time = DateField('По  ', default=datetime.today())
+
 
 @app.route('/employment', methods=["GET", "POST"])
 def employment():
@@ -137,9 +141,10 @@ def employment():
             if finish < start:
                 form1.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('/employment.html', form=form1)
-            print(type(finish))
+            print(screen_6(start, finish)) # выводит список строк "дата и время1 - дата и время 2"
             return render_template('/employment.html', form=form1)
     return render_template('/employment.html', form=form1)
+
 
 class ChooseFriend(FlaskForm):
     dbFile = FileField('')
@@ -150,7 +155,8 @@ class ChooseFriend(FlaskForm):
     start_time = DateField('C  ', default=datetime.today())
     end_time = DateField('По  ', default=datetime.today())
 
-friend=[] # массив для списка друзей
+
+friend = []  # массив для списка друзей
 
 @app.route('/synchronization', methods=['GET', 'POST'])
 def synchronization():
@@ -174,14 +180,17 @@ def synchronization():
             choice = form.users.data
             print(choice)
         if form.submit3.data:
-            start = form.start_time.data #даты
+            start = form.start_time.data  # даты
             finish = form.end_time.data
-            if finish<start:
+            if finish < start:
                 form.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('synchronization.html', form=form, friend=friend)
             print(start, finish)
             return render_template('synchronization.html', form=form, friend=friend)
     return render_template('/synchronization.html', form=form, friend=friend)
+
+
+
 
 
 def screen_4(is_year):
@@ -211,6 +220,14 @@ def screen_4(is_year):
             else:
                 result_visitors[vis] = 1
 
+        result_visitors.pop(current_user, None)
+
+        my_tuple = [(k, result_visitors[k]) for k in
+                             sorted(result_visitors, key=result_visitors.get, reverse=True)]
+        result_visitors = {}
+        for i in my_tuple:
+            result_visitors[i[0]] = i[1]
+
         print("Результат количества приглашенных на мероприятия тобой", result_visitors)
 
         # считаем все мероприятия и ищем кто их организовывал
@@ -224,11 +241,14 @@ def screen_4(is_year):
         for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
             result_organizers[org] = all_organizers.count(org)
 
-        result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
-
+        result_organizers.pop(current_user, None)
+        my_tuple = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
+        result_organizers = {}
+        for i in my_tuple:
+            result_organizers[i[0]] = i[1]
     print("Результаты подсчета количества организованных мероприятий", result_organizers)
 
-    return result_organizers
+    return [result_organizers,result_visitors]
 
 
 def screen_5(is_year):
@@ -252,58 +272,101 @@ def screen_5(is_year):
     return [count, count2]
 
 
-def screen_4(is_year):
+def screen_6(date_start, date_end):
+    global event_line
+    date_end = datetime.combine(date_end, datetime.min.time())
+    date_start = datetime.combine(date_start, datetime.min.time())
+    event_list = []
     cursor = mongo.db.users.find({"email": current_user})
-    cur_date = datetime.now()
-    if is_year:
-        cur_date = cur_date - timedelta(days=365)  # если год
-    else:
-        cur_date = cur_date - timedelta(days=30)  # если месяц
-
-    all_visitors = []
-    all_organizers = []  # все организаторы
-    result_organizers = {}  # dict - результат
-    result_visitors = {}  # dict - результат
-
     for id in cursor:
         user_id = id.get('_id')
-        # ты организатор считаем приглашенных
+        # находим все даты попавшие в промежуток
+        event_line = mongo.db.events.find(
+            {'$and': [{"user_id": user_id}, {"start": {'$lt': date_end}}, {"end": {'$gte': date_start}}]})
 
-        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user, "start": {'$gte': cur_date}})
-        cursor1 = mongo.db.events.find({"user_id": user_id, "organizer": current_user,  "start": {'$gte': cur_date}})
+    for event in event_line:
+        # добавляем пары начало конец меротприятия, для сортировки
+        event_list.append((event.get('start'), event.get('end')))
 
-        for vis in cursor1:
-            all_visitors += vis.get('visitors')
+    return get_free_time(date_start, date_end, event_list)
 
-        for vis in all_visitors:
-            if vis in result_visitors.keys():
-                result_visitors[vis] += 1
+
+def get_free_time(date_start, date_end, event_list):
+    # сортируем
+    event_list.sort(key=get_first)
+
+    # оставляем только непересекающиеся даты
+    tmp_list = []  # хранит непересекающиеся даты
+    i = 0
+    j = 0
+    while i < len(event_list):
+        if i == 0:
+            tmp_list.append(event_list[i])
+            j += 1
+        else:
+            date1 = tmp_list[j - 1]
+            date2 = event_list[i]
+            if has_overlap(date1, date2):
+                tmp_list[j - 1] = (min(get_first(date1), get_first(date2)), max(get_second(date1), get_second(date2)))
             else:
-                result_visitors[vis] = 1
+                tmp_list.append(event_list[i])
+                j += 1
 
-        print("Результат количества приглашенных на мероприятия тобой", result_visitors)
+        i += 1
+    result_free = []
+    i = 0
+    if len(tmp_list) > 0:
+        if get_first(tmp_list[i]) < date_start:
+            if i + 1 < len(tmp_list):  # если в массиве больше чем одно событие
+                result_free.append((get_second(tmp_list[i]), get_first(tmp_list[i + 1])))
+            else:
+                if date_end > get_second(tmp_list[i]):  # смотрим есть ли у нас вообще свободное время в этом промежутке
+                    result_free.append((get_second(tmp_list[i]), date_end))
 
-        # считаем все мероприятия и ищем кто их организовывал
-        cursor1 = mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}})
-        for org in cursor1:
-            if org.get('visitors'):  # если в таблице есть приглашенные то запоминаем организатора
-                all_organizers.append(org.get('organizer'))
+        else:
+            if i + 1 < len(tmp_list):  # если в массиве больше чем одно событие
+                result_free.append((date_start, get_first(tmp_list[i])))
+                result_free.append((get_second(tmp_list[i]), get_first(tmp_list[i + 1])))
+            else:
+                if date_end > get_second(tmp_list[i]):  # смотрим есть ли у нас вообще свободное время в этом промежутке
+                    result_free.append((date_start, get_first(tmp_list[i])))
+                    result_free.append((get_second(tmp_list[i]), date_end))
+    else:
+        result_free.append((date_start, date_end))
 
-        # ищем список всех организаторов без повторений
-        # записываем в словарь ключ - эмайл, значение - количество организованных мероприятий
-        for org in mongo.db.events.find({"user_id": user_id, "start": {'$gte': cur_date}}).distinct("organizer"):
-            result_organizers[org] = all_organizers.count(org)
+    i += 1
+
+    while i < len(tmp_list):
+        if i + 1 < len(tmp_list):  # если это не последнее событие в массиве
+            result_free.append((get_second(tmp_list[i]), get_first(tmp_list[i + 1])))
+        else:
+            if date_end > get_second(tmp_list[i]):  # если последнее событие
+                result_free.append((get_second(tmp_list[i]), date_end))
+
+        i += 1
+    # преобразование в список строк
+    tmp_list = []
+    for time in result_free:
+        start = date_to_string(get_first(time))
+        finish = date_to_string(get_second(time))
+        tmp_list.append(start + " - " + finish)
+
+    return tmp_list
 
 
-        result_organizers = [(k, result_organizers[k]) for k in
-                             sorted(result_organizers, key=result_organizers.get, reverse=True)]
-        result_organizers = [(k, result_organizers[k]) for k in sorted(result_organizers, key=result_organizers.get, reverse=True)]
+# проверка на пересечение дат
+def has_overlap(date1, date2):
+    latest_start = max(get_first(date1), get_first(date2))
+    earliest_end = min(get_second(date1), get_second(date2))
+    return latest_start <= earliest_end
 
 
-    print("Результаты подсчета количества организованных мероприятий", result_organizers)
+def get_second(val):
+    return val[1]
 
-    return result_organizers
 
+def get_first(val):
+    return val[0]
 
 def parse_to_mongo_user(user):  # закидываем юзера в бд юзеров
     cursor = mongo.db.users.find({"email": user})
@@ -333,6 +396,10 @@ def parse_to_mongo_events(user_id, user):  # закидываем его мер�
                                     "organizer": event["ORGANIZER"], "visitors": event["VISITORS"]})
 
 
+def date_to_string(date):
+    result = date.strftime("%d-%m-%Y %H:%M")
+    return result
+
 def diagram(a):
     x = {
         'Организованные мероприятия': a[0],
@@ -351,16 +418,11 @@ def diagram(a):
     p.wedge(x=0, y=1, radius=0.4,
             start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
             line_color="white", fill_color='color', legend='country', source=data)
-
-    p.axis.axis_label = None
-    p.axis.visible = False
-    p.grid.grid_line_color = None
-    return p
-
     p.axis.axis_label=None
     p.axis.visible=False
     p.grid.grid_line_color = None
     return p
+
 
 if __name__ == '__main__':
     app.run(debug=True)
