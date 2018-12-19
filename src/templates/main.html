@@ -9,8 +9,7 @@
 </head>
 
 <body>
-  <div class="card bg-light mb-3" style="max-width: auto; height: auto; position: absolute;  top: 50%;
-        left: 50%; margin-right: -50%; transform: translate(-50%, -50%)">
+  <div cclass="card border-secondary mb-3" style="max-width: auto; height: auto; position: absolute; left: 7%; right: 7%;">
     <div class="card-header" align = "center" style="font-size: 20pt" >
       Google calendar statistics
       <small class="form-text text-muted" style="font-size: 10pt" >Приветсвуем тебя, простой смертный, зачем-то зашедший на этот сайт!</small>
@@ -19,6 +18,7 @@
       <div align="center">
           <small class="form-text text-muted" style="font-size: 10pt" > Приложение Google calendar statistics позволит Вам получить статистику по вашему календарю.</small>
       </div>
+
       <form action="" method=post enctype=multipart/form-data>
           <div>
               <label for="exampleInputFile" style="margin-top: 20px">Выберите файл с календарем</label>
@@ -27,15 +27,16 @@
                   {{ form.dbFile.label }} {{ form.dbFile }}
                   {{ form.submit1 (class_="btn btn-primary btn-sm")}}
                   {{ form.submit2 (class_="btn btn-secondary btn-sm") }}
+                  {{ form.submit21 (class_="btn btn-secondary btn-sm") }}
                   <small id="fileHelp" class="form-text text-muted">Загрузите файл с вашим календарем для получения статистики.</small>
               </p>
                <p align="center">
-                   <div style="width: 35%; margin-bottom: 2%">
-                        {{ form.users.label }} {{ form.users(class="form-control") }}
-                        <small id="fileHelp" class="form-text text-muted"> Выберите пользователя. статистику которого хотите получить.</small>
+                   <div>
+                        <p>
+                            {{ form.users(class="form-control", style="width: 50%; margin-bottom: 2%") }}
+                            {{ form.submit3 (class_="btn btn-primary btn-sm")}}
+                            <small id="fileHelp" class="form-text text-muted"> Выберите пользователя. статистику которого хотите получить.</small>
                    </div>
-                  {{ form.submit3 (class_="btn btn-primary btn-sm")}}
-                   <small id="fileHelp" class="form-text text-muted"> Выберите пользователя. статистику которого хотите получить.</small>
               </p>
           </div>
           <hr>

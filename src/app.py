@@ -38,13 +38,13 @@ class ChooseUser(FlaskForm):
     users = SelectField('Выберите user', choices=[(i, i) for i in mass])
     submit1 = SubmitField('Импорт в базу данных')
     submit3 = SubmitField('Выбрать пользователя')
-    submit2 = SubmitField('Экспорт базы данных')
+    submit2 = SubmitField('Экспорт бд Users')
+    submit21 = SubmitField('Экспорт бд Events')
 
 
 class Form1(FlaskForm):
     Data = RadioField('Временной промежуток', choices=[('year', 'Год'), ('month', 'Месяц')])
     submit = SubmitField('Получить статистику')
-
 
 
 def allowed_file(filename):
@@ -69,18 +69,31 @@ def main():
                 return render_template('main.html', form=form)
         # ОЛЯ, ЗДЕСЬ ЭКСПОРТ ПО ИДЕЕ
         if form.submit2.data:
-            os.system('mongoexport --db Calendars --collection users --out Users.json')
-            os.system('mongoexport --db Calendars --collection events --out Events.json')
+            os.system('mongoexport --db Calendars --collection users --out ./export/Users.json')
+            os.system('mongoexport --db Calendars --collection events --out ./export/Events.json')
             file_export = 'Users.json'
-            return render_template('main.html', form=form)
-#            return redirect(url_for('uploaded_file',
-#                                    filename=file_export))
+            #return render_template('main.html', form=form)
+            return redirect(url_for('download',
+                                    filename=file_export))
+        if form.submit21.data:
+            os.system('mongoexport --db Calendars --collection users --out ./export/Users.json')
+            os.system('mongoexport --db Calendars --collection events --out ./export/Events.json')
+            file_export = 'Events.json'
+            #return render_template('main.html', form=form)
+            return redirect(url_for('download',
+                                    filename=file_export))
         #  А ЗДЕСЬ ВЫБОР ПОЛЬЗОВАТЕЛЯ
         if form.submit3.data:
             choice = form.users.data
             global current_user
             current_user = choice
     return render_template('main.html', form=form)
+
+
+@app.route('/download/<filename>')
+def download(filename):
+    return send_from_directory('./export', filename)
+
 
 
 @app.route('/tmp/<filename>')
@@ -141,14 +154,14 @@ def employment():
             if finish < start:
                 form1.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('/employment.html', form=form1)
-            print(screen_6(start, finish))  # выводит список строк "дата и время1 - дата и время 2"
-            return render_template('/employment.html', form=form1)
+            employment = screen_6(start, finish) # выводит список строк "дата и время1 - дата и время 2"
+            return render_template('/employment.html', form=form1, empl=employment)
     return render_template('/employment.html', form=form1)
 
 
 class ChooseFriend(FlaskForm):
     dbFile = FileField('')
-    users = SelectField('Выберите user', choices=[(i, i) for i in mass])
+    users = SelectField(choices=[(i, i) for i in mass])
     submit1 = SubmitField('Импорт календаря друга в бд')
     submit2 = SubmitField('Выбрать друга')
     submit3 = SubmitField('Получить результат')
@@ -185,10 +198,10 @@ def synchronization():
             if finish < start:
                 form.end_time.errors.append('Указан не верный промежуток времени')
                 return render_template('synchronization.html', form=form, friend=friend)
-            print(start, finish)
-            print(meetings(friend, start, finish))  # вывести места пересечения список строк
-            print(free_time(friend, start, finish))  # вывести свободное время чтобы всем встретиться список строк
-            return render_template('synchronization.html', form=form, friend=friend)
+            meetting = meetings(friend, start, finish) # вывести места пересечения список строк
+            print(meetting)
+            f_time = free_time(friend, start, finish)  # вывести свободное время чтобы всем встретиться список строк
+            return render_template('synchronization.html', form=form, friend=friend, meetting=meetting, time=f_time)
     return render_template('/synchronization.html', form=form, friend=friend)
 
 
