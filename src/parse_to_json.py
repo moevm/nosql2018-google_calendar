@@ -108,7 +108,7 @@ def createjson (filename):
     myData = myData['VEVENT']
     myData = redact(username, myData) # изменяем данные как необходимо
 
-    with open('./data/' + username + '.json', 'w') as outfile:  # создаем json файл
+    with open('./src/data/' + username + '.json', 'w') as outfile:  # создаем json файл
         json.dump(myData, outfile, indent=4, ensure_ascii=False)
 
     return username

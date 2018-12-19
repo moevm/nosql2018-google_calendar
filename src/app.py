@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template, make_response, send_file, url_for, flash, redirect, \
     send_from_directory
 from flask_pymongo import PyMongo
-from parse_to_json import createjson
+from .parse_to_json import createjson
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import json
@@ -69,15 +69,15 @@ def main():
                 return render_template('main.html', form=form)
         # ОЛЯ, ЗДЕСЬ ЭКСПОРТ ПО ИДЕЕ
         if form.submit2.data:
-            os.system('mongoexport --db Calendars --collection users --out ./export/Users.json')
-            os.system('mongoexport --db Calendars --collection events --out ./export/Events.json')
+            os.system('mongoexport --db Calendars --collection users --out ./src/export/Users.json')
+            os.system('mongoexport --db Calendars --collection events --out ./src/export/Events.json')
             file_export = 'Users.json'
             #return render_template('main.html', form=form)
             return redirect(url_for('download',
                                     filename=file_export))
         if form.submit21.data:
-            os.system('mongoexport --db Calendars --collection users --out ./export/Users.json')
-            os.system('mongoexport --db Calendars --collection events --out ./export/Events.json')
+            os.system('mongoexport --db Calendars --collection users --out ./src/export/Users.json')
+            os.system('mongoexport --db Calendars --collection events --out ./src/export/Events.json')
             file_export = 'Events.json'
             #return render_template('main.html', form=form)
             return redirect(url_for('download',
@@ -456,7 +456,7 @@ def parse_to_mongo_user(user):  # закидываем юзера в бд юзе
 
 
 def parse_to_mongo_events(user_id, user):  # закидываем его мероприятия
-    json_file = open('./data/' + user + '.json').read()
+    json_file = open('./src/data/' + user + '.json').read()
     json_file = json.loads(json_file)
     for event in json_file:
         if 'ORGANIZER' in event:
